@@ -1,0 +1,39 @@
+================================================================================
+ALUMNI PORTAL - BACKEND MODIFICATIONS CHANGELOG
+================================================================================
+This file documents all changes made to the backend codebase to support frontend
+integration and bug fixes. Share this file with the backend team.
+
+Format:
+- DATE: YYYY-MM-DD
+- FILE: Path to modified file
+- CHANGE: Summary of modifications
+- REASON: Why the change was necessary
+================================================================================
+- DATE: 2026-09-20 (Re-applied 2026-09-26 after merge)
+- FILE: backend/app/industry/repositories/dashboard_repository.py
+- CHANGE: Refactored get_industry_stats() to query company job IDs and count total applications using a direct {"job_id": {"$in": job_ids}} query rather than an invalid mixed $lookup aggregation stage.
+- REASON: The previous $lookup stage mixed localField/foreignField with let/pipeline, which caused MongoDB to reject the query with an OperationFailure, crashing the GET /api/industry/dashboard/stats endpoint when accessed from the frontend.
+================================================================================
+- DATE: 2026-09-20 (Re-applied 2026-09-26 after merge)
+- FILE: backend/app/auth/services/auth_services.py
+- CHANGE: [SECURITY VULNERABILITY - TEMPORARY DEVELOPMENT TESTING BYPASS]
+  Added temporary HARDCODED_TEST_USERS dictionary and bypass in user_login() and student_login().
+- REASON: Enables instant testing of all 4 roles (Student, Industry, Alumni, Admin) without requiring active local Redis or Gmail SMTP email services.
+- HOW TO REMOVE BEFORE PRODUCTION: Delete the HARDCODED_TEST_USERS dictionary and the associated bypass if-block in user_login() in auth_services.py.
+================================================================================
+- DATE: 2026-09-21 (Re-applied 2026-09-26 after merge)
+- FILE: backend/app/auth/models/user.py
+- CHANGE: Added is_mentor (bool) field to the User model, defaulting to False.
+- REASON: To support opt-in mentorship tracking for Alumni users.
+================================================================================
+- DATE: 2026-09-21 (Re-applied 2026-09-26 after merge)
+- FILE: backend/app/mentorship/*
+- CHANGE: Added complete mentorship domain (models, schemas, repository, services, router). Includes POST /requests, GET /requests/me, PUT /requests/{id}/status, and PUT /opt-in.
+- REASON: To implement the mentorship network requested by user, allowing students to send requests and alumni to accept/reject them.
+================================================================================
+- DATE: 2026-09-26
+- FILE: backend/app/posts/*
+- CHANGE: DELETED the previously created `app/posts` folder.
+- REASON: The backend team's new codebase (`backend-latest`) implements `alumni_feed_router` and `alumni_post_router` (and their `industry` equivalents) natively. Prioritized their implementation over our custom one. Frontend was updated to use `/api/feed/` and `/api/<role>/posts/`.
+================================================================================

@@ -1,0 +1,41 @@
+from fastapi import APIRouter
+
+from app.auth.schemas.login import LoginRequest, UserLoginRequest
+from app.auth.schemas.token import TokenResponse
+from app.auth.schemas.refresh import RefreshRequest
+from app.auth.schemas.signup import SignupRequest, SignupResponse
+from app.auth.schemas.otp import VerifyOTPRequest
+from app.auth.services.auth_services import AuthService
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"]
+)
+
+auth_service = AuthService()
+
+
+@router.post("/signup",response_model=SignupResponse)
+async def signup(request: SignupRequest):
+    return await auth_service.signup(request)
+
+
+@router.post("/verify-email",response_model=TokenResponse)
+async def verify_email(request: VerifyOTPRequest):
+    return await auth_service.verify_email(request)
+
+@router.post("/login", response_model=TokenResponse)
+async def login(request: LoginRequest):
+    return await auth_service.student_login(request)
+
+@router.post("/user/login", response_model=TokenResponse)
+async def users_login(request: UserLoginRequest):
+    return await auth_service.user_login(request)
+
+@router.post("/refresh",response_model=TokenResponse)
+async def refresh_token(request: RefreshRequest):
+
+    return await auth_service.refresh_token(
+        request.refresh_token
+    )
+
